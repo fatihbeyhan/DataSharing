@@ -31,3 +31,7 @@ If you are willing to apply the same procedure to different dataset, please find
 Dataset can be in json or csv format. Just make sure you name columns as '*text*' and '*label*'.
 
 Please, read the scripts to get a better understanding of methods for better results.
+
+***
+Scripts for further algorithms will be uploaded soon.
+***
