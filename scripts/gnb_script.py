@@ -1,5 +1,6 @@
 # Modular GNB script
 
+# Import required modules
 import json
 from datetime import datetime
 import random
@@ -27,6 +28,10 @@ stopwords = open("../data/stopwords.txt",'r').read().split('\n\n')
 
 
 def create_dataframe(file):
+
+    """
+    This function will return the given file in needed format.
+    """
     if 'json' in file:
         list_of_articles = []
         with open(file,'rb') as f:
@@ -39,26 +44,32 @@ def create_dataframe(file):
     if 'csv' in file:
         return pd.DataFrame(pd.read_csv(file),columns=['text','label'])
 
-# preprocessing function 
-    # split an article into sentences
-        # go to each sentence and split it to words
-            # if this word  is not in stopwords or other common words I've decided
-                #AND
-                   # if its alphabetic (getting rid of puctuation and numbers)
-                        #AND
-                            # if len of the word is greater than 2
-                            
-                            # lemmatize and lowercase the the word
-                            
-                            # return the cleaned article
+
 def preprocess(news):
+
+    """
+    This function will preprocess the text.
+
+    split an article into sentences
+     go to each sentence and split it to words
+      if this word  is not in stopwords or other common words I've decided
+       AND
+      if its alphabetic (getting rid of puctuation and numbers)
+       AND
+      if len of the word is greater than 2
+        lemmatize and lowercase the the word
+      return the cleaned article
+    """
     l = WordNetLemmatizer()
     sentences = news.split(".")
     return " ".join([l.lemmatize(word.lower()) for sentence in sentences for word in sentence.split() if word not in stopwords if word.isalpha() if len(word)> 2 if word.lower() not in ["said","the","first","also","would","one","two","they"]])
 
 
-# TfIdf Vectorizer returns a sparse matrix and GaussianNB() takes only dense matrices, so I am using an transformer.
 class DenseTransformer(TransformerMixin):
+    """
+    TfIdf Vectorizer returns a sparse matrix and GaussianNB() 
+    takes only dense matrices, so I am using an transformer.
+    """
     def fit(self, X, y=None, **fit_params):
         return self
     def transform(self, X, y=None, **fit_params):
@@ -66,6 +77,10 @@ class DenseTransformer(TransformerMixin):
 
 
 def GNB(train,dev,test,iters):
+    """
+    this function will do the 'job' for mixed sampling. it will split the dataset into incremental steps
+    then apply grid search etc. and finally return the results.
+    """
        
     steps = list(range(round(train.shape[0]/10),train.shape[0],round(train.shape[0]/10)))
     steps.append(train.shape[0])
@@ -120,6 +135,10 @@ def GNB(train,dev,test,iters):
     return steps,gnb_mixed
 
 def GNB_CLASS(train,dev,test,which_class,iters):
+    """
+    this function will do the 'job' for class samplings. it will split the dataset into incremental steps
+    then apply grid search etc. and finally return the results.
+    """
     
     if which_class == 0.0:
         steps = list(range(round(train[train.label == which_class].shape[0]/10),
@@ -198,6 +217,10 @@ def GNB_CLASS(train,dev,test,which_class,iters):
 
 
 if __name__ == '__main__':
+
+    """
+    when script is called, at least one data file has to be given in a json or csv format. 
+    """
     SEED = 44
     print('\nSTARTING...\n\n')
 
