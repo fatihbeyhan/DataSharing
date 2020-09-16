@@ -18,10 +18,16 @@ did better than advanced algorithms such as multilayer neural network, *BERT*.He
 which are *Naïve Bayes*, *Support Vector Machine*, *Multi-Layer NN* and *BERT*. The complexity of algorithms is increasing, respectively.To sum up, 
 we are working on a text classification problem. *TfIdfVectorizer()* method of *scikit-learn* library is used toprepare the dataset for the algorithms, except *Bi-LSTM* and *BERT*.
 
+If you need more details about this work, please read the [**report**](https://github.com/fatihbeyhan/DataSharing/blob/master/report/Data_Size_Effect_Report.pdf).
+
 ***
 Due to copyright issues, we are not allowed to share the dataset. However, if you are interested on the work and dataset feel free to contact.
 ***
 
 ## How to use?
 
-On 
+If you are willing to apply the same procedure to different dataset, please find the scripts for Support Vector Machine and Naive Bayes algorithms in [**here**](https://github.com/fatihbeyhan/DataSharing/tree/master/scripts).  
+
+Dataset can be in json or csv format. Just make sure you name columns as '*text*' and '*label*'.
+
+Please, read the scripts to get a better understanding of methods for better results.
