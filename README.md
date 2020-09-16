@@ -19,5 +19,9 @@ which are *Naïve Bayes*, *Support Vector Machine*, *Multi-Layer NN* and *BERT*.
 we are working on a text classification problem. *TfIdfVectorizer()* method of *scikit-learn* library is used toprepare the dataset for the algorithms, except *Bi-LSTM* and *BERT*.
 
 ***
-Due to copyright issues, we are not allowed to share the dataset we are working on publicly. However, if you are interested on the work and dataset feel free to contact.
+Due to copyright issues, we are not allowed to share the dataset. However, if you are interested on the work and dataset feel free to contact.
 ***
+
+## How to use?
+
+On 
