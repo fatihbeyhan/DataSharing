@@ -14,7 +14,7 @@ Due to this reason, we did some experiments on our data set with **classical and
 the missing URLs can affect the results of the models. The results of these experimentscan help us to simplify the data set and resolve 
 the copyright issues. On our [**previous work**](https://github.com/fatihbeyhan/ProtestClassifier), we were asked to build protest-classifier. Different algorithms were tried and due to propertiesof 
 the shared dataset, which is not the same with CLEF 2019 dataset, classical machine learning algorithms such assupport vector machine, 
-did better than advanced algorithms such as multilayer neural network, *BERT*.Hence, we will do our experiments with four different algorithms 
+did better than advanced algorithms such as multilayer neural network, *BERT*. Hence, we will do our experiments with four different algorithms 
 which are *Naïve Bayes*, *Support Vector Machine*, *Multi-Layer NN* and *BERT*. The complexity of algorithms is increasing, respectively.To sum up, 
 we are working on a text classification problem. *TfIdfVectorizer()* method of *scikit-learn* library is used toprepare the dataset for the algorithms, except *Bi-LSTM* and *BERT*.
 
