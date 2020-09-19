@@ -21,7 +21,8 @@ we are working on a text classification problem. *TfIdfVectorizer()* method of *
 If you need more details about this work, please read the [**report**](https://github.com/fatihbeyhan/DataSharing/blob/master/report/Data_Size_Effect_Report.pdf).
 
 ***
-Due to copyright issues, we are not allowed to share the dataset. However, if you are interested on the work and dataset feel free to contact.
+Due to copyright issues, we are not allowed to share the dataset. More information about the dataset can be found on:
+Hürriyetoğlu, A., Yörük, E., Yüret, D., Mutlu, O., Yoltar, Ç ., Gürel, B., and Duruşan, F. (2020). Cross-context news corpus for protest events related knowledge base construction. In Automated Knowledge Base Construction (AKBC), June. URL: https://www.akbc.ws/2020/papers/7NZkNhLCjp
 ***
 
 ## How to use?
