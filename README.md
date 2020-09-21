@@ -35,5 +35,5 @@ Dataset can be in json or csv format. Just make sure you name columns as '*text*
 Please, read the scripts to get a better understanding of methods for better results.
 
 ***
-Scripts for further algorithms will be uploaded soon.
+Scripts for Bi-LSTM and BERT will be uploaded soon.
 ***
