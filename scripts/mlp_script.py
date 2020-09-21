@@ -377,10 +377,10 @@ if __name__ == "__main__":
             r = ((df,dp,dr),(tf,tp,tr))
             mlp_class0[steps.index(size)].append(r) # save the scores
            
-        mlp_class0.insert(0,[[[0,0,0],[0,0,0]],[[0,0,0],[0,0,0]]])
+        mlp_class1.insert(0,[[[0,0,0],[0,0,0]],[[0,0,0],[0,0,0]]])
         steps.insert(0,0)
 
-        MLP_CLASS1_FILE = {'steps': steps, 'results': mlp_class0}
+        MLP_CLASS1_FILE = {'steps': steps, 'results': mlp_class1}
 
         filename = 'MLP_CLASS1_RESULTS.pickle'
         pickle.dump(MLP_CLASS1_FILE, open("../outputs/pickled_results/"+filename, 'wb'))
