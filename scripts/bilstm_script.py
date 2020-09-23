@@ -280,7 +280,7 @@ if __name__ == "__main__":
               'dropout' : [0.2,0.5]}
 
     """
-    This is the point some real shit is about to happen.
+    This is the point.
     """
     if bilstm_question == 'mixed':
       iters = int(input('Number of iterations:'))
@@ -353,6 +353,6 @@ if __name__ == "__main__":
           
           _,FPR = evaluate(model,test_iterator)
               
-          print(FPR)
-          break
-        break
+# Finish up: add to the list and create a file to put on outputs BILSTM_MIXED_RESULTS.pickle
+
+# Create same for classes.
