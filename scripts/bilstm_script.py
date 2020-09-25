@@ -283,76 +283,175 @@ if __name__ == "__main__":
     This is the point.
     """
     if bilstm_question == 'mixed':
-      iters = int(input('Number of iterations:'))
+        iters = int(input('Number of iterations:'))
 
-      steps = [1750,2250,2750,3250] # Step size is relative. Might change it to get reliable scores or for less time consuming execution.
+        steps = [1750,2250,2750,3250] # Step size is relative. Might change it to get reliable scores or for less time consuming execution.
 
-      bilstm_mixed = [[] for i in range(len(steps))]
+        bilstm_mixed = [[] for i in range(len(steps))]
 
-      for size in steps: # sample size is chosen
-        for _ in range(iters): # sampling same size for multiple time due to realiabity of this experiment
+        for size in steps: # sample size is chosen
+            for _ in range(iters): # sampling same size for multiple time due to realiabity of this experiment
 
-          train = TRAIN_DF.sample(size,random_state= random.sample(range(6760),1)[0])
-          dev = DEV_DF
-          test = TEST_DF
+            train = TRAIN_DF.sample(size,random_state= random.sample(range(6760),1)[0])
+            dev = DEV_DF
+            test = TEST_DF
 
-          TEXT  = data.Field(tokenize = 'spacy', include_lengths = True)
-          LABEL = data.LabelField(dtype = torch.float)
+            TEXT  = data.Field(tokenize = 'spacy', include_lengths = True)
+            LABEL = data.LabelField(dtype = torch.float)
 
-          fields = [('text',TEXT), ('label',LABEL)]
-          train_ds, val_ds, test_ds = DataFrameDataset.splits(fields, train_df = train, val_df = dev, test_df=test)
+            fields = [('text',TEXT), ('label',LABEL)]
+            train_ds, val_ds, test_ds = DataFrameDataset.splits(fields, train_df = train, val_df = dev, test_df=test)
 
-          MAX_VOCAB_SIZE = 25000
+            MAX_VOCAB_SIZE = 25000
+            
+            TEXT.build_vocab(train_ds, 
+                            max_size = MAX_VOCAB_SIZE, 
+                            vectors = 'glove.6B.200d', # this will take some time to download but what can i do?
+                            unk_init = torch.Tensor.zero_)
+
+            LABEL.build_vocab(train_ds)
+
+            BATCH_SIZE = 64
+
+            device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+
+            train_iterator, valid_iterator, test_iterator = data.BucketIterator.splits(
+                (train_ds, val_ds, test_ds), 
+                batch_size = BATCH_SIZE,
+                sort_within_batch = True,
+                    device = device)
+            
+            learning_rate,N_LAYERS,DROPOUT = GridSearchBiLSTM(params,train_iterator,valid_iterator,test_iterator)
+
+            num_epochs = 10
+            INPUT_DIM = len(TEXT.vocab)
+            EMBEDDING_DIM = 200
+            HIDDEN_DIM = 256
+            OUTPUT_DIM = 1
+            BIDIRECTIONAL = True
+            PAD_IDX = TEXT.vocab.stoi[TEXT.pad_token] 
+
+            model = LSTM_net(INPUT_DIM, 
+                    EMBEDDING_DIM, 
+                    HIDDEN_DIM, 
+                    OUTPUT_DIM, 
+                    N_LAYERS, 
+                    BIDIRECTIONAL, 
+                    DROPOUT, 
+                    PAD_IDX)
+
+            pretrained_embeddings = TEXT.vocab.vectors
+            model.embedding.weight.data[PAD_IDX] = torch.zeros(EMBEDDING_DIM)
+
+            model.to(device) #to GPU
+            criterion = nn.BCEWithLogitsLoss()
+            optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
+
+
+            for epoch in range(num_epochs):
+                train_loss, train_acc = model_train(model, train_iterator,optimizer,criterion)
+            
+            _,DFPR = evaluate(model,valid_iterator)
+            _,TFPR = evaluate(model,test_iterator)
+            
+            r = (DFPR,TFPR)
+            
+            bilstm_mixed[steps.index(size)].append(r) # save the scores
+           
+        bilstm_mixed.insert(0,[[[0,0,0],[0,0,0]],[[0,0,0],[0,0,0]]])
+        steps.insert(0,0)
+
+        BILSTM_MIXED_FILE = {'steps': steps, 'results': mlp_class0}
+
+        filename = 'BILSTM_MIXED_RESULTS.pickle'
+        pickle.dump(BILSTM_MIXED_FILE, open("../outputs/pickled_results/"+filename, 'wb'))
+
+    elif bilstm_question == 'class':
         
-          TEXT.build_vocab(train_ds, 
-                          max_size = MAX_VOCAB_SIZE, 
-                          vectors = 'glove.6B.200d', # this will take some time to download but what can i do?
-                          unk_init = torch.Tensor.zero_)
+        which_class = input('Which class would you like to sample? [0,1,both]:')
+        iters = int(input('Number of iterations:'))
 
-          LABEL.build_vocab(train_ds)
+        steps = [1750,2250,2750,3250] # Step size is relative. Might change it to get reliable scores or for less time consuming execution.
 
-          BATCH_SIZE = 64
+        bilstm_mixed = [[] for i in range(len(steps))]
 
-          device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+        for size in steps: # sample size is chosen
+            for _ in range(iters): # sampling same size for multiple time due to realiabity of this experiment
 
-          train_iterator, valid_iterator, test_iterator = data.BucketIterator.splits(
-              (train_ds, val_ds, test_ds), 
-              batch_size = BATCH_SIZE,
-              sort_within_batch = True,
-                device = device)
-          
-          learning_rate,N_LAYERS,DROPOUT = GridSearchBiLSTM(params,train_iterator,valid_iterator,test_iterator)
+            train = TRAIN_DF.sample(size,random_state= random.sample(range(6760),1)[0])
+            dev = DEV_DF
+            test = TEST_DF
 
-          num_epochs = 10
-          INPUT_DIM = len(TEXT.vocab)
-          EMBEDDING_DIM = 200
-          HIDDEN_DIM = 256
-          OUTPUT_DIM = 1
-          BIDIRECTIONAL = True
-          PAD_IDX = TEXT.vocab.stoi[TEXT.pad_token] 
+            TEXT  = data.Field(tokenize = 'spacy', include_lengths = True)
+            LABEL = data.LabelField(dtype = torch.float)
 
-          model = LSTM_net(INPUT_DIM, 
-                  EMBEDDING_DIM, 
-                  HIDDEN_DIM, 
-                  OUTPUT_DIM, 
-                  N_LAYERS, 
-                  BIDIRECTIONAL, 
-                  DROPOUT, 
-                  PAD_IDX)
+            fields = [('text',TEXT), ('label',LABEL)]
+            train_ds, val_ds, test_ds = DataFrameDataset.splits(fields, train_df = train, val_df = dev, test_df=test)
 
-          pretrained_embeddings = TEXT.vocab.vectors
-          model.embedding.weight.data[PAD_IDX] = torch.zeros(EMBEDDING_DIM)
+            MAX_VOCAB_SIZE = 25000
+            
+            TEXT.build_vocab(train_ds, 
+                            max_size = MAX_VOCAB_SIZE, 
+                            vectors = 'glove.6B.200d', # this will take some time to download but what can i do?
+                            unk_init = torch.Tensor.zero_)
 
-          model.to(device) #to GPU
-          criterion = nn.BCEWithLogitsLoss()
-          optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
+            LABEL.build_vocab(train_ds)
+
+            BATCH_SIZE = 64
+
+            device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+
+            train_iterator, valid_iterator, test_iterator = data.BucketIterator.splits(
+                (train_ds, val_ds, test_ds), 
+                batch_size = BATCH_SIZE,
+                sort_within_batch = True,
+                    device = device)
+            
+            learning_rate,N_LAYERS,DROPOUT = GridSearchBiLSTM(params,train_iterator,valid_iterator,test_iterator)
+
+            num_epochs = 10
+            INPUT_DIM = len(TEXT.vocab)
+            EMBEDDING_DIM = 200
+            HIDDEN_DIM = 256
+            OUTPUT_DIM = 1
+            BIDIRECTIONAL = True
+            PAD_IDX = TEXT.vocab.stoi[TEXT.pad_token] 
+
+            model = LSTM_net(INPUT_DIM, 
+                    EMBEDDING_DIM, 
+                    HIDDEN_DIM, 
+                    OUTPUT_DIM, 
+                    N_LAYERS, 
+                    BIDIRECTIONAL, 
+                    DROPOUT, 
+                    PAD_IDX)
+
+            pretrained_embeddings = TEXT.vocab.vectors
+            model.embedding.weight.data[PAD_IDX] = torch.zeros(EMBEDDING_DIM)
+
+            model.to(device) #to GPU
+            criterion = nn.BCEWithLogitsLoss()
+            optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
 
 
-          for epoch in range(num_epochs):
-              train_loss, train_acc = model_train(model, train_iterator,optimizer,criterion)
-          
-          _,FPR = evaluate(model,test_iterator)
+            for epoch in range(num_epochs):
+                train_loss, train_acc = model_train(model, train_iterator,optimizer,criterion)
+            
+            _,DFPR = evaluate(model,valid_iterator)
+            _,TFPR = evaluate(model,test_iterator)
+            
+            r = (DFPR,TFPR)
+            
+            bilstm_mixed[steps.index(size)].append(r) # save the scores
+           
+        bilstm_mixed.insert(0,[[[0,0,0],[0,0,0]],[[0,0,0],[0,0,0]]])
+        steps.insert(0,0)
+
+        BILSTM_MIXED_FILE = {'steps': steps, 'results': mlp_class0}
+
+        filename = 'BILSTM_MIXED_RESULTS.pickle'
+        pickle.dump(BILSTM_MIXED_FILE, open("../outputs/pickled_results/"+filename, 'wb'))
               
-# Finish up: add to the list and create a file to put on outputs BILSTM_MIXED_RESULTS.pickle
 
+    
 # Create same for classes.
